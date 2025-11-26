@@ -1,7 +1,18 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialization - only create AI instance when needed and API key is available
+let ai: any = null;
+
+const getAI = () => {
+  if (!ai) {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    if (apiKey) {
+      ai = new GoogleGenAI({ apiKey });
+    }
+  }
+  return ai;
+};
 
 export const getTerminalResponse = async (
   command: string,
@@ -9,9 +20,11 @@ export const getTerminalResponse = async (
   fileSystemSummary: string
 ): Promise<string> => {
   try {
+    const aiInstance = getAI();
+    
     // If no API key is set (development mode), fallback to static response
-    if (!process.env.API_KEY) {
-      return `[SIMULATION MODE - NO API KEY]\nCommand '${command}' executed in ${cwd}.\n\nConfigure API_KEY to enable AI simulation.`;
+    if (!aiInstance) {
+      return `[SIMULATION MODE - NO API KEY]\nCommand '${command}' executed in ${cwd}.\n\nSet VITE_GEMINI_API_KEY in .env file to enable AI simulation.`;
     }
 
     const systemPrompt = `
@@ -33,7 +46,7 @@ export const getTerminalResponse = async (
       7. Use coloring codes if you want, but plain text is safer for this React renderer unless we implement ANSI parsing. Stick to plain text for now, maybe use [OK] or [+] prefixes for status.
     `;
 
-    const response = await ai.models.generateContent({
+    const response = await aiInstance.models.generateContent({
       model: "gemini-2.5-flash",
       contents: systemPrompt,
     });
@@ -47,10 +60,13 @@ export const getTerminalResponse = async (
 
 export const getChatResponse = async (message: string): Promise<string> => {
     try {
-        if (!process.env.API_KEY) {
-            return "I'm sorry, I cannot connect to the AI service right now. (Missing API Key)";
+        const aiInstance = getAI();
+        
+        if (!aiInstance) {
+            return "I'm sorry, I cannot connect to the AI service right now. (Missing API Key)\n\nSet VITE_GEMINI_API_KEY in .env file to enable AI features.";
         }
-        const response = await ai.models.generateContent({
+        
+        const response = await aiInstance.models.generateContent({
             model: "gemini-2.5-flash",
             contents: message,
             config: {

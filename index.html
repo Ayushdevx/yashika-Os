@@ -1,112 +1,118 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yashika OS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yashika OS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            yashika: {
+              bg: '#0f172a', // Slate 900
+              dark: '#020617', // Slate 950
+              accent: '#0ea5e9', // Sky 500
+              terminal: '#10b981', // Emerald 500
+              danger: '#ef4444', // Red 500
+              panel: '#1e293b', // Slate 800
+            }
+          },
+          animation: {
+            'window-open': 'windowOpen 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'fade-in-up': 'fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pop-in': 'popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'zoom-in': 'zoomIn 0.2s ease-out forwards',
+            'slide-in-from-bottom': 'slideInFromBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'dock-bounce': 'dockBounce 0.4s ease-in-out',
+          },
+          keyframes: {
+            windowOpen: {
+              '0%': { opacity: '0', transform: 'scale(0.95) translateY(10px)' },
+              '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
             },
-            colors: {
-              yashika: {
-                bg: '#0f172a', // Slate 900
-                dark: '#020617', // Slate 950
-                accent: '#0ea5e9', // Sky 500
-                terminal: '#10b981', // Emerald 500
-                danger: '#ef4444', // Red 500
-                panel: '#1e293b', // Slate 800
-              }
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(10px) scale(0.98)' },
+              '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
             },
-            animation: {
-              'window-open': 'windowOpen 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'fade-in-up': 'fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'pop-in': 'popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'zoom-in': 'zoomIn 0.2s ease-out forwards',
-              'slide-in-from-bottom': 'slideInFromBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'dock-bounce': 'dockBounce 0.4s ease-in-out',
+            popIn: {
+              '0%': { opacity: '0', transform: 'scale(0.9)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
             },
-            keyframes: {
-              windowOpen: {
-                '0%': { opacity: '0', transform: 'scale(0.95) translateY(10px)' },
-                '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
-              },
-              fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(10px) scale(0.98)' },
-                '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
-              },
-              popIn: {
-                '0%': { opacity: '0', transform: 'scale(0.9)' },
-                '100%': { opacity: '1', transform: 'scale(1)' },
-              },
-              zoomIn: {
-                '0%': { opacity: '0', transform: 'scale(0.95)' },
-                '100%': { opacity: '1', transform: 'scale(1)' },
-              },
-              slideInFromBottom: {
-                '0%': { opacity: '0', transform: 'translateY(20px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              },
-              dockBounce: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-10px)' },
-              }
+            zoomIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+            slideInFromBottom: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            dockBounce: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
             }
           }
         }
       }
-    </script>
-    <style>
-      body {
-        overflow: hidden;
-        background-color: #000;
-        user-select: none;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-      /* Custom scrollbar for terminal/windows */
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1); 
-        border-radius: 3px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3); 
-      }
+    }
+  </script>
+  <style>
+    body {
+      overflow: hidden;
+      background-color: #000;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-      /* Taskbar Icon Hover Effect Helpers */
-      .dock-icon {
-        transform-origin: bottom center;
-      }
-      
-      /* Glass effect helper */
-      .glass-panel {
-        background: rgba(15, 23, 42, 0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-      
-      /* Selection Color */
-      ::selection {
-        background: rgba(14, 165, 233, 0.3);
-        color: white;
-      }
-    </style>
+    /* Custom scrollbar for terminal/windows */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Taskbar Icon Hover Effect Helpers */
+    .dock-icon {
+      transform-origin: bottom center;
+    }
+
+    /* Glass effect helper */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Selection Color */
+    ::selection {
+      background: rgba(14, 165, 233, 0.3);
+      color: white;
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -120,7 +126,10 @@
 }
 </script>
 </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>

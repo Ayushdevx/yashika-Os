@@ -5,7 +5,7 @@ import {
     Monitor, User, Info, Image as ImageIcon, Wifi, Lock, Shield, Volume2,
     Globe, Cpu, Camera, MapPin, Bell, Moon, Sun, Palette, Zap, HardDrive,
     Bluetooth, Radio, Settings as SettingsIcon, Circle, Check, ChevronRight,
-    Search, Power, AlertCircle, Download, RefreshCw, Network, Eye, EyeOff
+    Search, Power, Download, RefreshCw, Network, Eye, EyeOff
 } from 'lucide-react';
 import { AppProps } from '../../types';
 
@@ -99,6 +99,8 @@ const Settings: React.FC<AppProps> = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
+
+
     // Load settings from localStorage
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -125,17 +127,24 @@ const Settings: React.FC<AppProps> = () => {
         setTimeout(() => setShowToast(false), 2000);
     };
 
+
+
+
+
     // Reusable Components
     const ToggleSwitch: React.FC<{ checked: boolean; onChange: (checked: boolean) => void; label?: string }> = ({ checked, onChange, label }) => (
         <div className="flex items-center gap-3">
             <button
                 onClick={() => onChange(!checked)}
-                className={`relative w-11 h-6 rounded-full transition-all duration-300 ${checked ? 'bg-blue-500' : 'bg-gray-600'
+                className={`relative w-11 h-6 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 ${checked ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-600 hover:bg-gray-500'
                     }`}
             >
                 <div
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-300 ${checked ? 'translate-x-5' : 'translate-x-0'
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ease-out ${checked ? 'translate-x-5 scale-110' : 'translate-x-0 scale-100'
                         }`}
+                    style={{
+                        transition: 'transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), scale 0.2s ease-out'
+                    }}
                 />
             </button>
             {label && <span className="text-sm text-gray-300">{label}</span>}
@@ -148,18 +157,19 @@ const Settings: React.FC<AppProps> = () => {
         <div className="space-y-2">
             <div className="flex justify-between items-center">
                 <label className="text-sm font-medium text-gray-300">{label}</label>
-                <span className="text-sm text-blue-400 font-mono">{value}{unit}</span>
+                <span className="text-sm text-blue-400 font-mono font-bold">{value}{unit}</span>
             </div>
-            <div className="relative">
+            <div className="relative group">
                 <input
                     type="range"
                     min={min}
                     max={max}
                     value={value}
                     onChange={(e) => onChange(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb"
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb transition-all hover:h-3"
                     style={{
-                        background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${value}%, #374151 ${value}%, #374151 100%)`
+                        background: `linear-gradient(to right, #3b82f6 0%, #6366f1 ${value}%, #374151 ${value}%, #374151 100%)`,
+                        boxShadow: `0 0 10px rgba(59, 130, 246, ${value / 200})`
                     }}
                 />
             </div>
@@ -172,10 +182,10 @@ const Settings: React.FC<AppProps> = () => {
         description?: string;
         children: React.ReactNode;
     }> = ({ icon, title, description, children }) => (
-        <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-gray-600/50 transition-all">
+        <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-blue-500/30 hover:bg-gray-800/70 transition-all duration-300 transform hover:scale-[1.01]">
             <div className="flex items-start justify-between gap-4">
                 <div className="flex gap-3 flex-1">
-                    <div className="text-gray-400 mt-1">{icon}</div>
+                    <div className="text-gray-400 mt-1 transition-colors group-hover:text-blue-400">{icon}</div>
                     <div className="flex-1">
                         <h3 className="text-sm font-medium text-gray-200">{title}</h3>
                         {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
@@ -198,8 +208,8 @@ const Settings: React.FC<AppProps> = () => {
         <button
             onClick={() => setActiveTab(id)}
             className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${activeTab === id
-                    ? 'bg-blue-500/20 text-blue-400 shadow-lg shadow-blue-500/10'
-                    : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-300'
+                ? 'bg-blue-500/20 text-blue-400 shadow-lg shadow-blue-500/10'
+                : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-300'
                 }`}
         >
             <div className={activeTab === id ? 'scale-110' : ''}>{icon}</div>
@@ -272,7 +282,7 @@ const Settings: React.FC<AppProps> = () => {
                             localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
                             showSuccessToast('Settings reset to defaults');
                         }}
-                        className="w-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                        className="w-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
                     >
                         <RefreshCw size={14} />
                         Reset to Default
@@ -303,8 +313,8 @@ const Settings: React.FC<AppProps> = () => {
                                                 key={theme.id}
                                                 onClick={() => updateSetting('theme', theme.id)}
                                                 className={`p-4 rounded-xl border-2 transition-all ${settings.theme === theme.id
-                                                        ? 'border-blue-500 bg-blue-500/10'
-                                                        : 'border-gray-700 hover:border-gray-600 bg-gray-800/30'
+                                                    ? 'border-blue-500 bg-blue-500/10'
+                                                    : 'border-gray-700 hover:border-gray-600 bg-gray-800/30'
                                                     }`}
                                             >
                                                 <Icon size={24} className={settings.theme === theme.id ? 'text-blue-400' : 'text-gray-400'} />
@@ -324,8 +334,8 @@ const Settings: React.FC<AppProps> = () => {
                                             key={color.color}
                                             onClick={() => updateSetting('accentColor', color.color)}
                                             className={`aspect-square rounded-lg border-2 transition-all relative ${settings.accentColor === color.color
-                                                    ? 'border-white scale-110 shadow-lg'
-                                                    : 'border-gray-700 hover:scale-105'
+                                                ? 'border-white scale-110 shadow-lg'
+                                                : 'border-gray-700 hover:scale-105'
                                                 }`}
                                             style={{ backgroundColor: color.color }}
                                             title={color.name}
@@ -347,8 +357,8 @@ const Settings: React.FC<AppProps> = () => {
                                             key={wp.url}
                                             onClick={() => setWallpaper(wp.url)}
                                             className={`group relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${wallpaper === wp.url
-                                                    ? 'border-blue-500 shadow-lg shadow-blue-500/20 scale-105'
-                                                    : 'border-gray-700 hover:border-gray-600'
+                                                ? 'border-blue-500 shadow-lg shadow-blue-500/20 scale-105'
+                                                : 'border-gray-700 hover:border-gray-600'
                                                 }`}
                                         >
                                             <img
@@ -762,18 +772,7 @@ const Settings: React.FC<AppProps> = () => {
                                     </div>
                                 )}
 
-                                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <AlertCircle size={18} className="text-yellow-400" />
-                                        <div>
-                                            <div className="text-sm font-medium">Security Status</div>
-                                            <div className="text-xs text-gray-500">Last scan: 2 hours ago</div>
-                                        </div>
-                                    </div>
-                                    <button className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                                        Run Security Scan
-                                    </button>
-                                </div>
+
                             </div>
 
                             <div className="space-y-3">
@@ -975,6 +974,8 @@ const Settings: React.FC<AppProps> = () => {
 
                 </div>
             </div>
+
+
 
             <style>{`
         .slider-thumb::-webkit-slider-thumb {

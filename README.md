@@ -1,4 +1,6 @@
-Made By Ayush Upadhyay
+Yashika Os 
+custom Kali Linux inspired Os Made By Ayush Upadhyay
+
 ## Run Locally
 
 **Prerequisites:**  Node.js

@@ -1,0 +1,8 @@
+{
+  "name": "Yashika OS",
+  "description": "A high-fidelity cybersecurity operating system simulator inspired by Kali Linux, featuring AI-powered terminal, network analysis tools, and a full desktop environment.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

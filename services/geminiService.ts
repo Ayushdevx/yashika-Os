@@ -6,7 +6,7 @@ let ai: any = null;
 
 const getAI = () => {
   if (!ai) {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyD5_1DQkzCkdtoic0bj4qISXBYkYHxNn_Q';
     if (apiKey) {
       ai = new GoogleGenAI({ apiKey });
     }
@@ -21,7 +21,7 @@ export const getTerminalResponse = async (
 ): Promise<string> => {
   try {
     const aiInstance = getAI();
-    
+
     // If no API key is set (development mode), fallback to static response
     if (!aiInstance) {
       return `[SIMULATION MODE - NO API KEY]\nCommand '${command}' executed in ${cwd}.\n\nSet VITE_GEMINI_API_KEY in .env file to enable AI simulation.`;
@@ -59,23 +59,23 @@ export const getTerminalResponse = async (
 };
 
 export const getChatResponse = async (message: string): Promise<string> => {
-    try {
-        const aiInstance = getAI();
-        
-        if (!aiInstance) {
-            return "I'm sorry, I cannot connect to the AI service right now. (Missing API Key)\n\nSet VITE_GEMINI_API_KEY in .env file to enable AI features.";
-        }
-        
-        const response = await aiInstance.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: message,
-            config: {
-                systemInstruction: "You are ChatGPT, a helpful AI assistant running inside Yashika OS. Be concise, helpful, and friendly.",
-            }
-        });
-        return response.text || "I couldn't generate a response.";
-    } catch (error) {
-        console.error("Chat Error:", error);
-        return "Error: Could not connect to AI.";
+  try {
+    const aiInstance = getAI();
+
+    if (!aiInstance) {
+      return "I'm sorry, I cannot connect to the AI service right now. (Missing API Key)\n\nSet VITE_GEMINI_API_KEY in .env file to enable AI features.";
     }
+
+    const response = await aiInstance.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: message,
+      config: {
+        systemInstruction: "You are ChatGPT, a helpful AI assistant running inside Yashika OS. Be concise, helpful, and friendly.",
+      }
+    });
+    return response.text || "I couldn't generate a response.";
+  } catch (error) {
+    console.error("Chat Error:", error);
+    return "Error: Could not connect to AI.";
+  }
 };

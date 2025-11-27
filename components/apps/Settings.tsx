@@ -8,7 +8,7 @@ import {
     Search, Power, Download, RefreshCw, Network, Eye, EyeOff, X, AlertTriangle,
     FileText, Activity, Play, Pause, AlertCircle
 } from 'lucide-react';
-import { AppProps } from '../../types';
+import { AppProps, AppID } from '../../types';
 
 // Wallpaper gallery
 const WALLPAPERS = [
@@ -241,7 +241,7 @@ const SecurityScanModal: React.FC<{
 };
 
 const Settings: React.FC<AppProps> = () => {
-    const { wallpaper, setWallpaper } = useOS();
+    const { wallpaper, setWallpaper, launchApp } = useOS();
     const [activeTab, setActiveTab] = useState<'appearance' | 'display' | 'sound' | 'network' | 'privacy' | 'about'>('appearance');
     const [settings, setSettings] = useState<SettingsData>(defaultSettings);
     const [searchQuery, setSearchQuery] = useState('');
@@ -1113,14 +1113,12 @@ const Settings: React.FC<AppProps> = () => {
                                     <p className="text-gray-400 mt-1">Version 1.0.0 • Based on Kali Linux 2026</p>
                                     <div className="mt-3 flex items-center gap-2">
                                         <span className="text-sm text-gray-500">Developed by</span>
-                                        <a
-                                            href="https://ayushxupadhyayayushxupadhyay.netlify.app"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-sm text-blue-400 hover:text-blue-300 font-semibold hover:underline"
+                                        <span
+                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://ayushxupadhyay.netlify.app' })}
+                                            className="text-sm text-blue-400 hover:text-blue-300 font-semibold hover:underline cursor-pointer"
                                         >
                                             Ayush Upadhyay
-                                        </a>
+                                        </span>
                                     </div>
                                 </div>
                             </div>

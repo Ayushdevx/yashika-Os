@@ -394,5 +394,13 @@ export const APP_REGISTRY = {
     component: React.lazy(() => import('./components/apps/Games')),
     defaultWidth: 900,
     defaultHeight: 600,
+  },
+  [AppID.KALI_TOOLS]: {
+    id: AppID.KALI_TOOLS,
+    name: 'Kali Tools',
+    icon: <Terminal className="w-full h-full text-red-500" />,
+    component: React.lazy(() => import('./components/apps/KaliTools')),
+    defaultWidth: 900,
+    defaultHeight: 650,
   }
 };

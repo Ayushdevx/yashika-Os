@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { AppID, WindowState, FileSystemItem, OSContextState } from '../types';
+import { AppID, WindowState, FileSystemItem, OSContextState, SystemSettings } from '../types';
 import { APP_REGISTRY, INITIAL_FILE_SYSTEM } from '../constants';
 import { normalizePath, resolvePath, findNode, cloneFS } from '../utils/fsHelpers';
 import { playSystemSound } from '../utils/soundEffects';
@@ -34,8 +34,8 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     // We skip this check if params are provided (e.g., opening multiple text files)
     const existing = windows.find(w => w.appId === appId);
     if (!params && (appId === AppID.SETTINGS || appId === AppID.TASK_MANAGER) && existing) {
-        focusWindow(existing.id);
-        return;
+      focusWindow(existing.id);
+      return;
     }
 
     const newWindow: WindowState = {
@@ -95,7 +95,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   }
 
   const playSound = (type: 'click' | 'open' | 'close' | 'minimize' | 'error' | 'login') => {
-      playSystemSound(type);
+    playSystemSound(type);
   };
 
   // --- File System Actions ---
@@ -130,7 +130,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const fileName = parts.pop();
     if (!fileName) return false;
     const dirPath = '/' + parts.join('/');
-    
+
     let success = false;
 
     mutateFS((root) => {
@@ -171,17 +171,17 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       const parent = findNode(root, parentPath);
       if (parent && parent.type === 'directory' && parent.children) {
         if (!parent.children.find(c => c.name === dirName)) {
-            parent.children.push({
-                id: `dir-${Date.now()}`,
-                name: dirName,
-                type: 'directory',
-                children: [],
-                createdAt: Date.now(),
-                permissions: 'drwxr-xr-x',
-                owner: 'yashika',
-                group: 'yashika'
-            });
-            success = true;
+          parent.children.push({
+            id: `dir-${Date.now()}`,
+            name: dirName,
+            type: 'directory',
+            children: [],
+            createdAt: Date.now(),
+            permissions: 'drwxr-xr-x',
+            owner: 'yashika',
+            group: 'yashika'
+          });
+          success = true;
         }
       }
     });
@@ -196,14 +196,14 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     let success = false;
     mutateFS((root) => {
-       const parent = findNode(root, parentPath);
-       if (parent && parent.type === 'directory' && parent.children) {
-           const idx = parent.children.findIndex(c => c.name === targetName);
-           if (idx !== -1) {
-               parent.children.splice(idx, 1);
-               success = true;
-           }
-       }
+      const parent = findNode(root, parentPath);
+      if (parent && parent.type === 'directory' && parent.children) {
+        const idx = parent.children.findIndex(c => c.name === targetName);
+        if (idx !== -1) {
+          parent.children.splice(idx, 1);
+          success = true;
+        }
+      }
     });
     return success;
   };
@@ -218,80 +218,80 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       const destName = parts.pop();
       if (!destName) return;
       const destParentPath = '/' + parts.join('/');
-      
+
       const destNode = findNode(root, dest);
       let targetParentNode: FileSystemItem | null = null;
       let finalName = destName;
 
       if (destNode && destNode.type === 'directory') {
-          targetParentNode = destNode;
-          finalName = sourceNode.name;
+        targetParentNode = destNode;
+        finalName = sourceNode.name;
       } else {
-          targetParentNode = findNode(root, destParentPath);
+        targetParentNode = findNode(root, destParentPath);
       }
 
       if (targetParentNode && targetParentNode.type === 'directory' && targetParentNode.children) {
-          // Clone source node
-          const newNode = cloneFS([sourceNode])[0];
-          newNode.name = finalName;
-          newNode.id = `${newNode.type}-${Date.now()}-${Math.random()}`;
-          
-          // Overwrite logic
-          const existingIdx = targetParentNode.children.findIndex(c => c.name === finalName);
-          if (existingIdx !== -1) {
-              targetParentNode.children.splice(existingIdx, 1);
-          }
-          targetParentNode.children.push(newNode);
-          success = true;
+        // Clone source node
+        const newNode = cloneFS([sourceNode])[0];
+        newNode.name = finalName;
+        newNode.id = `${newNode.type}-${Date.now()}-${Math.random()}`;
+
+        // Overwrite logic
+        const existingIdx = targetParentNode.children.findIndex(c => c.name === finalName);
+        if (existingIdx !== -1) {
+          targetParentNode.children.splice(existingIdx, 1);
+        }
+        targetParentNode.children.push(newNode);
+        success = true;
       }
     });
     return success;
   };
 
   const moveItem = (source: string, dest: string): boolean => {
-      // Basic check to prevent moving parent into child
-      if (dest.startsWith(source) && dest[source.length] === '/') return false;
-      
-      const copied = copyItem(source, dest);
-      if (copied) {
-          return deleteItem(source);
-      }
-      return false;
+    // Basic check to prevent moving parent into child
+    if (dest.startsWith(source) && dest[source.length] === '/') return false;
+
+    const copied = copyItem(source, dest);
+    if (copied) {
+      return deleteItem(source);
+    }
+    return false;
   };
 
   const chmod = (path: string, mode: string): boolean => {
-      let success = false;
-      mutateFS((root) => {
-          const node = findNode(root, path);
-          if (node) {
-              // Octal mode support (e.g., 777)
-              if (/^[0-7]{3}$/.test(mode)) {
-                  const map = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
-                  const parts = mode.split('').map(d => parseInt(d));
-                  const prefix = node.type === 'directory' ? 'd' : '-';
-                  node.permissions = prefix + map[parts[0]] + map[parts[1]] + map[parts[2]];
-                  success = true;
-              }
-              // Basic +x / -x support
-              else if (mode === '+x') {
-                  const p = node.permissions.split('');
-                  if (p[3] === '-') p[3] = 'x';
-                  if (p[6] === '-') p[6] = 'x';
-                  if (p[9] === '-') p[9] = 'x';
-                  node.permissions = p.join('');
-                  success = true;
-              }
-              else if (mode === '-x') {
-                  const p = node.permissions.split('');
-                  if (p[3] === 'x') p[3] = '-';
-                  if (p[6] === 'x') p[6] = '-';
-                  if (p[9] === 'x') p[9] = '-';
-                  node.permissions = p.join('');
-                  success = true;
-              }
-          }
-      });
-      return success;
+    let success = false;
+    mutateFS((root) => {
+      const node = findNode(root, path);
+      if (node) {
+        // Octal mode support (e.g., 777)
+        if (/^[0-7]{3}$/.test(mode)) {
+          const map = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
+          const parts = mode.split('').map(d => parseInt(d));
+          const prefix = node.type === 'directory' ? 'd' : '-';
+          node.permissions = prefix + map[parts[0]] + map[parts[1]] + map[parts[2]];
+          success = true;
+        }
+        // Basic +x / -x support
+        else if (mode === '+x') {
+          const p = node.permissions.split('');
+          if (p[3] === '-') p[3] = 'x';
+          if (p[6] === '-') p[6] = 'x';
+          if (p[9] === '-') p[9] = 'x';
+          node.permissions = p.join('');
+          success = true;
+        }
+        else if (mode === '-x') {
+          const p = node.permissions.split('');
+          if (p[3] === 'x') p[3] = '-';
+          if (p[6] === 'x') p[6] = '-';
+          if (p[9] === 'x') p[9] = '-';
+          node.permissions = p.join('');
+          success = true;
+        }
+      }
+    });
+    return success;
   };
 
   const fsContext = {
@@ -306,6 +306,58 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     moveItem,
     chmod
   };
+
+  // --- System Settings Management ---
+  const DEFAULT_SETTINGS: SystemSettings = {
+    theme: 'dark',
+    accentColor: '#3b82f6',
+    wallpaper: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop",
+    transparency: true,
+    iconSize: 48,
+    fontSize: 14,
+    brightness: 100,
+    nightLight: false,
+    nightLightSchedule: 'sunset',
+    volume: 75,
+    systemVolume: 80,
+    notificationVolume: 100,
+    mediaVolume: 60,
+    soundEffects: true,
+    wifiEnabled: true,
+    bluetoothEnabled: true,
+    vpnEnabled: false,
+    firewall: true,
+    locationEnabled: false,
+    cameraEnabled: false,
+    microphoneEnabled: false,
+    resolution: '1920 x 1080',
+    refreshRate: '60 Hz',
+    screenTimeout: '10 minutes'
+  };
+
+  const [settings, setSettings] = useState<SystemSettings>(() => {
+    const saved = localStorage.getItem('yashika-settings');
+    return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+  });
+
+  const updateSettings = useCallback((newSettings: Partial<SystemSettings>) => {
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem('yashika-settings', JSON.stringify(updated));
+
+      // Apply side effects
+      if (newSettings.wallpaper) setWallpaper(newSettings.wallpaper);
+
+      return updated;
+    });
+  }, []);
+
+  // Sync wallpaper state with settings on mount
+  React.useEffect(() => {
+    if (settings.wallpaper !== wallpaper) {
+      setWallpaper(settings.wallpaper);
+    }
+  }, []);
 
   return (
     <OSContext.Provider value={{
@@ -324,7 +376,9 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       resizeWindow,
       toggleStart,
       playSound,
-      fs: fsContext
+      fs: fsContext,
+      settings,
+      updateSettings
     }}>
       {children}
     </OSContext.Provider>

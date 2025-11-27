@@ -23,7 +23,8 @@ export enum AppID {
   YOUTUBE = 'youtube',
   VSCODE = 'vscode',
   SPOTIFY = 'spotify',
-  GAMES = 'games'
+  GAMES = 'games',
+  KALI_TOOLS = 'kali_tools'
 }
 
 export interface WindowState {
@@ -96,4 +97,35 @@ export interface OSContextState {
     moveItem: (source: string, dest: string) => boolean;
     chmod: (path: string, mode: string) => boolean;
   };
+
+  // System Settings
+  settings: SystemSettings;
+  updateSettings: (newSettings: Partial<SystemSettings>) => void;
+}
+
+export interface SystemSettings {
+  theme: 'dark' | 'light' | 'dracula' | 'cyberpunk';
+  accentColor: string;
+  wallpaper: string;
+  transparency: boolean;
+  iconSize: number;
+  fontSize: number;
+  brightness: number;
+  nightLight: boolean;
+  nightLightSchedule: string;
+  volume: number;
+  systemVolume: number;
+  notificationVolume: number;
+  mediaVolume: number;
+  soundEffects: boolean;
+  wifiEnabled: boolean;
+  bluetoothEnabled: boolean;
+  vpnEnabled: boolean;
+  firewall: boolean;
+  locationEnabled: boolean;
+  cameraEnabled: boolean;
+  microphoneEnabled: boolean;
+  resolution: string;
+  refreshRate: string;
+  screenTimeout: string;
 }

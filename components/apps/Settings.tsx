@@ -1,12 +1,13 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useOS } from '../../contexts/OSContext';
 import {
-    Monitor, User, Info, Image as ImageIcon, Wifi, Lock, Shield, Volume2,
-    Globe, Cpu, Camera, MapPin, Bell, Moon, Sun, Palette, Zap, HardDrive,
-    Bluetooth, Radio, Settings as SettingsIcon, Circle, Check, ChevronRight,
-    Search, Power, Download, RefreshCw, Network, Eye, EyeOff, X, AlertTriangle,
-    FileText, Activity, Play, Pause, AlertCircle, ExternalLink
+    Settings as SettingsIcon, Wifi, Bluetooth, Monitor, Smartphone,
+    Moon, Sun, Volume2, Battery, Shield, Lock, User, Info,
+    Search, ChevronRight, ArrowLeft, Check, X, Globe, Network,
+    Cpu, HardDrive, Activity, Zap, Download, EyeOff, MapPin,
+    Camera, Radio, ExternalLink, Github, Linkedin, AlertTriangle,
+    FileText, Palette, RefreshCw, Eye, Image as ImageIcon, Power,
+    Bell, Circle, Play, Pause, AlertCircle
 } from 'lucide-react';
 import { AppProps, AppID } from '../../types';
 
@@ -41,56 +42,7 @@ const ACCENT_COLORS = [
     { name: 'Yellow', color: '#eab308' },
 ];
 
-// Storage for settings
-const STORAGE_KEY = 'yashika-os-settings';
 
-interface SettingsData {
-    theme: string;
-    accentColor: string;
-    brightness: number;
-    volume: number;
-    systemVolume: number;
-    notificationVolume: number;
-    mediaVolume: number;
-    soundEffects: boolean;
-    nightLight: boolean;
-    nightLightSchedule: string;
-    transparency: boolean;
-    iconSize: number;
-    fontSize: number;
-    firewall: boolean;
-    locationEnabled: boolean;
-    cameraEnabled: boolean;
-    microphoneEnabled: boolean;
-    wifiEnabled: boolean;
-    vpnEnabled: boolean;
-    bluetoothEnabled: boolean;
-    username: string;
-}
-
-const defaultSettings: SettingsData = {
-    theme: 'dark',
-    accentColor: '#3b82f6',
-    brightness: 100,
-    volume: 75,
-    systemVolume: 80,
-    notificationVolume: 70,
-    mediaVolume: 85,
-    soundEffects: true,
-    nightLight: false,
-    nightLightSchedule: 'sunset',
-    transparency: true,
-    iconSize: 48,
-    fontSize: 14,
-    firewall: true,
-    locationEnabled: false,
-    cameraEnabled: false,
-    microphoneEnabled: false,
-    wifiEnabled: true,
-    vpnEnabled: false,
-    bluetoothEnabled: false,
-    username: 'yashika',
-};
 
 // Security Scan Types
 type ScanPhase = 'idle' | 'initializing' | 'scanning_system' | 'scanning_network' | 'heuristics' | 'finalizing' | 'complete';
@@ -241,9 +193,8 @@ const SecurityScanModal: React.FC<{
 };
 
 const Settings: React.FC<AppProps> = () => {
-    const { wallpaper, setWallpaper, launchApp } = useOS();
+    const { wallpaper, setWallpaper, launchApp, settings, updateSettings } = useOS();
     const [activeTab, setActiveTab] = useState<'appearance' | 'display' | 'sound' | 'network' | 'privacy' | 'about'>('appearance');
-    const [settings, setSettings] = useState<SettingsData>(defaultSettings);
     const [searchQuery, setSearchQuery] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
@@ -337,26 +288,9 @@ const Settings: React.FC<AppProps> = () => {
         setTimeout(() => setIsScanModalOpen(false), 1500);
     };
 
-
-
-    // Load settings from localStorage
-    useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            try {
-                setSettings({ ...defaultSettings, ...JSON.parse(saved) });
-            } catch (e) {
-                console.error('Failed to load settings:', e);
-            }
-        }
-    }, []);
-
-    // Save settings to localStorage
-    const updateSetting = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {
-        const newSettings = { ...settings, [key]: value };
-        setSettings(newSettings);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
-        showSuccessToast('Setting saved');
+    const updateSetting = (key: keyof typeof settings, value: any) => {
+        updateSettings({ [key]: value });
+        // showSuccessToast('Setting saved'); // Optional: too many toasts might be annoying
     };
 
     const showSuccessToast = (message: string) => {
@@ -516,8 +450,13 @@ const Settings: React.FC<AppProps> = () => {
                 <div className="p-4 border-t border-gray-800">
                     <button
                         onClick={() => {
-                            setSettings(defaultSettings);
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
+                            updateSettings({
+                                theme: 'dark',
+                                accentColor: '#3b82f6',
+                                fontSize: 14,
+                                iconSize: 48,
+                                transparency: true
+                            });
                             showSuccessToast('Settings reset to defaults');
                         }}
                         className="w-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
@@ -680,6 +619,8 @@ const Settings: React.FC<AppProps> = () => {
                                 <p className="text-gray-500">Screen and display settings</p>
                             </div>
 
+                            <DisplayPreview wallpaper={wallpaper} resolution={settings.resolution} />
+
                             <div className="space-y-3">
                                 <SectionTitle>Brightness & Color</SectionTitle>
 
@@ -732,10 +673,14 @@ const Settings: React.FC<AppProps> = () => {
                                     title="Resolution"
                                     description="Current display resolution"
                                 >
-                                    <select className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-                                        <option>1920 × 1080 (Recommended)</option>
-                                        <option>2560 × 1440</option>
-                                        <option>3840 × 2160</option>
+                                    <select
+                                        value={settings.resolution}
+                                        onChange={(e) => updateSetting('resolution', e.target.value)}
+                                        className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                    >
+                                        <option>1920 x 1080</option>
+                                        <option>2560 x 1440</option>
+                                        <option>3840 x 2160</option>
                                     </select>
                                 </SettingItem>
 
@@ -744,7 +689,11 @@ const Settings: React.FC<AppProps> = () => {
                                     title="Refresh Rate"
                                     description="How often your display updates"
                                 >
-                                    <select className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                                    <select
+                                        value={settings.refreshRate}
+                                        onChange={(e) => updateSetting('refreshRate', e.target.value)}
+                                        className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                    >
                                         <option>60 Hz</option>
                                         <option>75 Hz</option>
                                         <option>144 Hz</option>
@@ -757,7 +706,11 @@ const Settings: React.FC<AppProps> = () => {
                                     title="Screen Timeout"
                                     description="Turn off screen after inactivity"
                                 >
-                                    <select className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                                    <select
+                                        value={settings.screenTimeout}
+                                        onChange={(e) => updateSetting('screenTimeout', e.target.value)}
+                                        className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                    >
                                         <option>Never</option>
                                         <option>1 minute</option>
                                         <option>5 minutes</option>
@@ -954,26 +907,7 @@ const Settings: React.FC<AppProps> = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <SectionTitle>Network Statistics</SectionTitle>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-lg p-4 border border-blue-500/20">
-                                        <div className="flex items-center gap-2 text-blue-400 mb-2">
-                                            <Download size={16} />
-                                            <span className="text-xs font-medium uppercase">Download</span>
-                                        </div>
-                                        <div className="text-2xl font-bold">47.3 GB</div>
-                                        <div className="text-xs text-gray-500 mt-1">This month</div>
-                                    </div>
-                                    <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg p-4 border border-purple-500/20">
-                                        <div className="flex items-center gap-2 text-purple-400 mb-2">
-                                            <Network size={16} />
-                                            <span className="text-xs font-medium uppercase">Upload</span>
-                                        </div>
-                                        <div className="text-2xl font-bold">12.8 GB</div>
-                                        <div className="text-xs text-gray-500 mt-1">This month</div>
-                                    </div>
-                                </div>
+                                <NetworkTrafficGraph />
                             </div>
                         </div>
                     )}
@@ -1095,156 +1029,17 @@ const Settings: React.FC<AppProps> = () => {
                                         <button className="text-sm text-blue-400 hover:text-blue-300">Enable</button>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     )}
 
-                    {activeTab === 'about' && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            {/* Developer Profile */}
-                            <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-2xl p-6 border border-white/10 text-center relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-500" />
-                                <div className="relative z-10 flex flex-col items-center">
-                                    <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-r from-blue-500 to-purple-500 mb-4 shadow-xl shadow-blue-500/20">
-                                        <img
-                                            src="https://avatars.githubusercontent.com/u/12345678?v=4"
-                                            alt="Ayush Upadhyay"
-                                            className="w-full h-full rounded-full object-cover border-2 border-[#0f172a]"
-                                        />
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-white mb-1">Ayush Upadhyay</h2>
-                                    <p className="text-blue-400 font-medium mb-4">Full Stack Developer & UI/UX Designer</p>
-
-                                    <div className="flex gap-3 mb-6">
-                                        <button
-                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://github.com/Ayushdevx' })}
-                                            className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white"
-                                            title="GitHub"
-                                        >
-                                            <Globe size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://linkedin.com/in/ayush-upadhyay' })}
-                                            className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-blue-400"
-                                            title="LinkedIn"
-                                        >
-                                            <Network size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://ayushxupadhyay.netlify.app' })}
-                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-full text-sm font-medium text-white transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2"
-                                        >
-                                            <span>Portfolio</span>
-                                            <ExternalLink size={14} />
-                                        </button>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-                                        <div className="bg-black/20 rounded-lg p-3 text-center backdrop-blur-sm">
-                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">OS Version</div>
-                                            <div className="font-mono font-bold text-blue-300">v2.1.0</div>
-                                        </div>
-                                        <div className="bg-black/20 rounded-lg p-3 text-center backdrop-blur-sm">
-                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Build</div>
-                                            <div className="font-mono font-bold text-purple-300">2026.1</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* System Hardware */}
-                            <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700/50">
-                                <div className="flex items-center gap-2 text-blue-400 mb-4">
-                                    <Cpu size={20} />
-                                    <h3 className="text-sm font-bold uppercase tracking-wider">System Hardware</h3>
-                                </div>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Cpu size={18} /></div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-200">Processor</div>
-                                                <div className="text-xs text-gray-500">Virtual Core i9-14900K</div>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-mono text-gray-400">3.2 GHz</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400"><Activity size={18} /></div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-200">Memory</div>
-                                                <div className="text-xs text-gray-500">32GB DDR5 RAM</div>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-mono text-gray-400">6000 MHz</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-green-500/10 rounded-lg text-green-400"><Monitor size={18} /></div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-200">Graphics</div>
-                                                <div className="text-xs text-gray-500">NVIDIA RTX 4090</div>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-mono text-gray-400">24GB</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Storage */}
-                            <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700/50">
-                                <div className="flex items-center gap-2 text-cyan-400 mb-4">
-                                    <HardDrive size={20} />
-                                    <h3 className="text-sm font-bold uppercase tracking-wider">Storage</h3>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-400">Used</span>
-                                        <span className="text-gray-300 font-medium">247 GB of 512 GB</span>
-                                    </div>
-                                    <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full" style={{ width: '48%' }} />
-                                    </div>
-                                    <div className="flex justify-between text-xs text-gray-500">
-                                        <span>48% full</span>
-                                        <span>265 GB available</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700/50">
-                                <div className="flex items-center gap-2 text-green-400 mb-4">
-                                    <Zap size={20} />
-                                    <h3 className="text-sm font-bold uppercase tracking-wider">System Status</h3>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4 text-center">
-                                    <div>
-                                        <div className="text-2xl font-bold text-green-400">99.8%</div>
-                                        <div className="text-xs text-gray-500 mt-1">Uptime</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-2xl font-bold text-blue-400">24h 17m</div>
-                                        <div className="text-xs text-gray-500 mt-1">Running</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-2xl font-bold text-purple-400">42°C</div>
-                                        <div className="text-xs text-gray-500 mt-1">CPU Temp</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2">
-                                <Download size={18} />
-                                Check for Updates
-                            </button>
-
-                            <div className="text-center text-xs text-gray-600 pt-4 border-t border-gray-800">
-                                <p>© 2026 Yashika OS • Licensed under MIT License</p>
-                                <p className="mt-1">Built with React, TypeScript, and Vite</p>
-                            </div>
-                        </div >
-                    )}
+                    {/* PRIVACY & SECURITY TAB */}
+                    {
+                        activeTab === 'about' && (
+                            <AboutTab launchApp={launchApp} />
+                        )
+                    }
                 </div >
             </div >
 
@@ -1257,7 +1052,7 @@ const Settings: React.FC<AppProps> = () => {
           border-radius: 50%;
           cursor: pointer;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-          transition: all 0.2s;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .slider-thumb::-webkit-slider-thumb:hover {
           transform: scale(1.2);
@@ -1271,28 +1066,377 @@ const Settings: React.FC<AppProps> = () => {
           border-radius: 50%;
           cursor: pointer;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-          transition: all 0.2s;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .slider-thumb::-moz-range-thumb:hover {
           transform: scale(1.2);
           box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
         }
+        
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes scale-in {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-scale-in {
+            animation: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
       `}</style>
             {/* Security Scan Modal */}
             <SecurityScanModal
                 isOpen={isScanModalOpen}
-                onClose={() => { setIsScanModalOpen(false); if (scanInterval.current) clearInterval(scanInterval.current); }}
+                onClose={() => setIsScanModalOpen(false)}
                 isScanning={isScanning}
                 progress={scanProgress}
                 currentFile={currentFile}
                 phase={scanPhase}
                 threats={threats}
                 onStart={startScan}
-                onPause={pauseScan}
+                onPause={() => setIsScanning(false)}
                 onResolve={resolveThreats}
             />
         </div >
     );
 };
+
+// Helper Components
+function SectionTitle({ icon, title, children }: { icon?: React.ReactNode; title?: string; children?: React.ReactNode }) {
+    return (
+        <div className="flex items-center gap-2 mb-3 text-gray-400 uppercase text-xs font-bold tracking-wider">
+            {icon}
+            <span>{title || children}</span>
+        </div>
+    );
+}
+
+function SettingItem({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
+    return (
+        <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700/50 hover:bg-gray-800/80 transition-colors">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-700/50 rounded-lg text-gray-300">
+                    {icon}
+                </div>
+                <div>
+                    <div className="text-sm font-medium text-gray-200">{title}</div>
+                    <div className="text-xs text-gray-500">{description}</div>
+                </div>
+            </div>
+            {children}
+        </div>
+    );
+}
+
+// Extracted About Tab Component for cleaner code
+function AboutTab({ launchApp }: { launchApp: (appId: string, params?: any) => void }) {
+    const [cpuUsage, setCpuUsage] = useState(15);
+    const [ramUsage, setRamUsage] = useState(24);
+    const [uptime, setUptime] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCpuUsage(prev => {
+                const change = Math.random() * 10 - 5;
+                return Math.min(Math.max(prev + change, 5), 90); // Keep between 5% and 90%
+            });
+            setRamUsage(prev => {
+                const change = Math.random() * 4 - 2;
+                return Math.min(Math.max(prev + change, 20), 80); // Keep between 20% and 80%
+            });
+            setUptime(prev => prev + 1);
+        }, 2000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const formatUptime = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        return `${h}h ${m}m`;
+    };
+
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-6">
+            <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <Shield size={32} className="text-white" />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold text-white tracking-tight">Yashika OS <span className="text-blue-400">Ultimate</span></h2>
+                    <p className="text-gray-400 text-sm">Version 2.1.0 (Build 2025.11)</p>
+                </div>
+            </div>
+
+            {/* Live Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* CPU Card */}
+                <div className="bg-[#1a1b26] p-5 rounded-xl border border-gray-700/50 relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors" />
+                    <div className="flex justify-between items-start mb-4 relative z-10">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                                <Cpu size={20} />
+                            </div>
+                            <div>
+                                <div className="text-xs text-gray-500 uppercase font-bold">Processor</div>
+                                <div className="text-sm font-medium text-gray-200">AMD Ryzen 9 5950X</div>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-2xl font-bold text-blue-400 font-mono">{Math.round(cpuUsage)}%</div>
+                            <div className="text-xs text-gray-500">3.4 GHz</div>
+                        </div>
+                    </div>
+                    {/* Graph Visualization */}
+                    <div className="h-16 flex items-end gap-1 relative z-10 opacity-50">
+                        {Array.from({ length: 20 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className="flex-1 bg-blue-500 rounded-t-sm transition-all duration-500"
+                                style={{ height: `${Math.max(10, cpuUsage + (Math.random() * 40 - 20))}%` }}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                {/* RAM Card */}
+                <div className="bg-[#1a1b26] p-5 rounded-xl border border-gray-700/50 relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-purple-500/5 group-hover:bg-purple-500/10 transition-colors" />
+                    <div className="flex justify-between items-start mb-4 relative z-10">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                                <Activity size={20} />
+                            </div>
+                            <div>
+                                <div className="text-xs text-gray-500 uppercase font-bold">Memory</div>
+                                <div className="text-sm font-medium text-gray-200">32GB DDR4 3600MHz</div>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-2xl font-bold text-purple-400 font-mono">{Math.round(ramUsage)}%</div>
+                            <div className="text-xs text-gray-500">{(ramUsage * 0.32).toFixed(1)} GB Used</div>
+                        </div>
+                    </div>
+                    {/* Progress Bar */}
+                    <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden relative z-10 mt-8">
+                        <div
+                            className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-500"
+                            style={{ width: `${ramUsage}%` }}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Hardware Specs Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="bg-[#1a1b26] p-3 rounded-xl border border-gray-700/50 text-center hover:border-gray-600 transition-colors">
+                    <div className="text-xs text-gray-500 uppercase font-bold mb-1">Graphics</div>
+                    <div className="text-green-400 font-bold text-sm">RTX 4090</div>
+                    <div className="text-[10px] text-gray-500">24GB GDDR6X</div>
+                </div>
+                <div className="bg-[#1a1b26] p-3 rounded-xl border border-gray-700/50 text-center hover:border-gray-600 transition-colors">
+                    <div className="text-xs text-gray-500 uppercase font-bold mb-1">Storage</div>
+                    <div className="text-yellow-400 font-bold text-sm">2TB NVMe</div>
+                    <div className="text-[10px] text-gray-500">Samsung 990 Pro</div>
+                </div>
+                <div className="bg-[#1a1b26] p-3 rounded-xl border border-gray-700/50 text-center hover:border-gray-600 transition-colors">
+                    <div className="text-xs text-gray-500 uppercase font-bold mb-1">Display</div>
+                    <div className="text-cyan-400 font-bold text-sm">4K UHD</div>
+                    <div className="text-[10px] text-gray-500">144Hz HDR</div>
+                </div>
+                <div className="bg-[#1a1b26] p-3 rounded-xl border border-gray-700/50 text-center hover:border-gray-600 transition-colors">
+                    <div className="text-xs text-gray-500 uppercase font-bold mb-1">Uptime</div>
+                    <div className="text-white font-bold text-sm font-mono">{formatUptime(uptime)}</div>
+                    <div className="text-[10px] text-gray-500">Session Duration</div>
+                </div>
+            </div>
+
+            {/* Developer Info */}
+            <div className="bg-[#1a1b26] rounded-xl p-6 border border-gray-700/50 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Globe size={100} className="text-blue-500" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-4 relative z-10 flex items-center gap-2">
+                    <User size={18} className="text-blue-400" />
+                    Developer Profile
+                </h3>
+                <div className="space-y-4 relative z-10">
+                    <div>
+                        <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Ayush Upadhyay</div>
+                        <div className="text-sm text-gray-400 mt-1">Full Stack Developer & Cyber Security Enthusiast</div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 pt-2">
+                        <button
+                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://github.com/Ayushdevx' })}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#24283b] hover:bg-[#2f334d] rounded-lg border border-gray-700 transition-all hover:border-blue-500/50 text-gray-300 hover:text-white group"
+                        >
+                            <Github size={16} className="group-hover:text-white transition-colors" />
+                            <span className="text-sm font-medium">GitHub</span>
+                        </button>
+                        <button
+                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://www.linkedin.com/in/ayushdevai/' })}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#24283b] hover:bg-[#0077b5]/20 rounded-lg border border-gray-700 transition-all hover:border-[#0077b5]/50 text-gray-300 hover:text-white group"
+                        >
+                            <Linkedin size={16} className="group-hover:text-[#0077b5] transition-colors" />
+                            <span className="text-sm font-medium">LinkedIn</span>
+                        </button>
+                        <button
+                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://ayushdevx.github.io/Portfolio-2.0/' })}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#24283b] hover:bg-purple-500/20 rounded-lg border border-gray-700 transition-all hover:border-purple-500/50 text-gray-300 hover:text-white group"
+                        >
+                            <ExternalLink size={16} className="group-hover:text-purple-400 transition-colors" />
+                            <span className="text-sm font-medium">Portfolio</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="text-center text-xs text-gray-600 pt-4 border-t border-gray-800">
+                <p>© 2025 Yashika OS Project • Kernel: Linux 6.8.0-kali • Shell: zsh 5.9</p>
+            </div>
+        </div>
+    );
+};
+
+function NetworkTrafficGraph() {
+    const [dataPoints, setDataPoints] = useState<{ download: number; upload: number }[]>([]);
+    const [currentSpeed, setCurrentSpeed] = useState({ download: 0, upload: 0 });
+
+    useEffect(() => {
+        // Initialize with some data
+        const initialData = Array.from({ length: 30 }, () => ({
+            download: Math.random() * 5,
+            upload: Math.random() * 2
+        }));
+        setDataPoints(initialData);
+
+        const interval = setInterval(() => {
+            setDataPoints(prev => {
+                const newDownload = Math.random() * (Math.random() > 0.8 ? 50 : 5); // Occasional spikes
+                const newUpload = Math.random() * (Math.random() > 0.8 ? 20 : 2);
+
+                setCurrentSpeed({ download: newDownload, upload: newUpload });
+
+                const newData = [...prev.slice(1), { download: newDownload, upload: newUpload }];
+                return newData;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const maxVal = 60; // Scale for graph
+
+    return (
+        <div className="bg-[#1a1b26] p-6 rounded-xl border border-gray-700/50 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                        <Activity size={20} />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-bold text-gray-200">Real-time Traffic</h3>
+                        <p className="text-xs text-gray-500">Monitoring incoming and outgoing packets</p>
+                    </div>
+                </div>
+                <div className="flex gap-4">
+                    <div className="text-right">
+                        <div className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-end gap-1">
+                            <Download size={12} /> Down
+                        </div>
+                        <div className="text-lg font-mono font-bold text-blue-400">
+                            {currentSpeed.download.toFixed(1)} <span className="text-xs text-gray-500">MB/s</span>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-end gap-1">
+                            <Network size={12} /> Up
+                        </div>
+                        <div className="text-lg font-mono font-bold text-purple-400">
+                            {currentSpeed.upload.toFixed(1)} <span className="text-xs text-gray-500">MB/s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Graph Area */}
+            <div className="h-48 flex items-end gap-1 relative overflow-hidden rounded-lg bg-gray-900/50 p-2 border border-gray-800">
+                {/* Grid Lines */}
+                <div className="absolute inset-0 flex flex-col justify-between p-2 opacity-20 pointer-events-none">
+                    <div className="w-full h-px bg-gray-500 border-t border-dashed border-gray-500"></div>
+                    <div className="w-full h-px bg-gray-500 border-t border-dashed border-gray-500"></div>
+                    <div className="w-full h-px bg-gray-500 border-t border-dashed border-gray-500"></div>
+                </div>
+
+                {dataPoints.map((point, i) => (
+                    <div key={i} className="flex-1 flex flex-col justify-end h-full gap-0.5 relative z-10">
+                        {/* Download Bar */}
+                        <div
+                            className="w-full bg-blue-500/80 rounded-t-sm transition-all duration-300 hover:bg-blue-400"
+                            style={{ height: `${(point.download / maxVal) * 100}%`, minHeight: '2px' }}
+                        />
+                        {/* Upload Bar (inverted/stacked visual or just separate? Let's do stacked for simplicity or separate small bar) */}
+                        <div
+                            className="w-full bg-purple-500/80 rounded-b-sm transition-all duration-300 hover:bg-purple-400"
+                            style={{ height: `${(point.upload / maxVal) * 100}%`, minHeight: '2px' }}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function DisplayPreview({ wallpaper, resolution }: { wallpaper: string; resolution: string }) {
+    return (
+        <div className="bg-[#1a1b26] p-6 rounded-xl border border-gray-700/50 shadow-lg mb-6">
+            <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                    <Monitor size={20} />
+                </div>
+                <div>
+                    <h3 className="text-sm font-bold text-gray-200">Display Preview</h3>
+                    <p className="text-xs text-gray-500">{resolution}</p>
+                </div>
+            </div>
+
+            <div className="relative aspect-video w-full rounded-lg overflow-hidden border-4 border-gray-800 shadow-2xl bg-black">
+                <img
+                    src={wallpaper}
+                    alt="Wallpaper Preview"
+                    className="w-full h-full object-cover transition-all duration-500"
+                />
+
+                {/* Simulated UI Elements */}
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-black/40 backdrop-blur-md flex items-center justify-center border-t border-white/10">
+                    <div className="w-1/3 h-full flex items-center justify-center gap-2">
+                        <div className="w-6 h-6 rounded bg-blue-500/80"></div>
+                        <div className="w-6 h-6 rounded bg-gray-600/50"></div>
+                        <div className="w-6 h-6 rounded bg-gray-600/50"></div>
+                    </div>
+                </div>
+
+                {/* Resolution Overlay */}
+                <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur rounded text-[10px] font-mono text-white/80 border border-white/10">
+                    {resolution}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default Settings;

@@ -14,6 +14,7 @@ import TaskManager from './components/apps/TaskManager';
 import Settings from './components/apps/Settings';
 import Notes from './components/apps/Notes';
 import Paint from './components/apps/Paint';
+import KaliTools from './components/apps/KaliTools';
 import Games from './components/apps/Games';
 import Clock from './components/apps/Clock';
 import Camera from './components/apps/Camera';
@@ -431,6 +432,7 @@ const Desktop: React.FC<{ onPowerClick: () => void }> = ({ onPowerClick }) => {
             case AppID.TASK_MANAGER: return <TaskManager {...commonProps} />;
             case AppID.SETTINGS: return <Settings {...commonProps} />;
             case AppID.NOTES: return <Notes {...commonProps} />;
+            case AppID.KALI_TOOLS: return <KaliTools {...commonProps} />;
             case AppID.PAINT: return <Paint {...commonProps} />;
             case AppID.GAMES: return <Games {...commonProps} />;
             case AppID.WORD: return <Word {...commonProps} />;

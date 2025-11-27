@@ -307,22 +307,6 @@ export const APP_REGISTRY = {
     defaultWidth: 800,
     defaultHeight: 600,
   },
-  [AppID.TICTACTOE]: {
-    id: AppID.TICTACTOE,
-    name: 'TicTacToe',
-    icon: <Gamepad2 className="w-full h-full text-purple-500" />,
-    component: () => null,
-    defaultWidth: 320,
-    defaultHeight: 400,
-  },
-  [AppID.WORD]: {
-    id: AppID.WORD,
-    name: 'Word',
-    icon: <FileText className="w-full h-full text-blue-600" />,
-    component: () => null,
-    defaultWidth: 800,
-    defaultHeight: 600,
-  },
   [AppID.EXCEL]: {
     id: AppID.EXCEL,
     name: 'Excel',
@@ -402,5 +386,13 @@ export const APP_REGISTRY = {
     component: () => null,
     defaultWidth: 1000,
     defaultHeight: 700,
+  },
+  [AppID.GAMES]: {
+    id: AppID.GAMES,
+    name: 'Games Arcade',
+    icon: <Gamepad2 className="w-full h-full text-purple-500" />,
+    component: React.lazy(() => import('./components/apps/Games')),
+    defaultWidth: 900,
+    defaultHeight: 600,
   }
 };

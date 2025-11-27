@@ -14,7 +14,7 @@ import TaskManager from './components/apps/TaskManager';
 import Settings from './components/apps/Settings';
 import Notes from './components/apps/Notes';
 import Paint from './components/apps/Paint';
-import TicTacToe from './components/apps/TicTacToe';
+import Games from './components/apps/Games';
 import Clock from './components/apps/Clock';
 import Camera from './components/apps/Camera';
 import { Word, Excel, PowerPoint } from './components/apps/Office';
@@ -432,7 +432,7 @@ const Desktop: React.FC<{ onPowerClick: () => void }> = ({ onPowerClick }) => {
             case AppID.SETTINGS: return <Settings {...commonProps} />;
             case AppID.NOTES: return <Notes {...commonProps} />;
             case AppID.PAINT: return <Paint {...commonProps} />;
-            case AppID.TICTACTOE: return <TicTacToe {...commonProps} />;
+            case AppID.GAMES: return <Games {...commonProps} />;
             case AppID.WORD: return <Word {...commonProps} />;
             case AppID.EXCEL: return <Excel {...commonProps} />;
             case AppID.POWERPOINT: return <PowerPoint {...commonProps} />;

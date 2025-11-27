@@ -12,7 +12,6 @@ export enum AppID {
   TEXT_EDITOR = 'text_editor',
   TASK_MANAGER = 'task_manager',
   PAINT = 'paint',
-  TICTACTOE = 'tictactoe',
   WORD = 'word',
   EXCEL = 'excel',
   POWERPOINT = 'powerpoint',
@@ -23,7 +22,8 @@ export enum AppID {
   CAMERA = 'camera',
   YOUTUBE = 'youtube',
   VSCODE = 'vscode',
-  SPOTIFY = 'spotify'
+  SPOTIFY = 'spotify',
+  GAMES = 'games'
 }
 
 export interface WindowState {
@@ -56,7 +56,7 @@ export interface AppConfig {
   id: AppID;
   name: string;
   icon: ReactNode;
-  component: React.FC<AppProps>; 
+  component: React.FC<AppProps>;
   defaultWidth: number;
   defaultHeight: number;
 }
@@ -82,7 +82,7 @@ export interface OSContextState {
   resizeWindow: (id: string, width: number, height: number) => void;
   toggleStart: () => void;
   playSound: (type: 'click' | 'open' | 'close' | 'minimize' | 'error' | 'login') => void;
-  
+
   // File System Actions
   fs: {
     root: FileSystemItem[];

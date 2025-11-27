@@ -6,7 +6,7 @@ import {
     Globe, Cpu, Camera, MapPin, Bell, Moon, Sun, Palette, Zap, HardDrive,
     Bluetooth, Radio, Settings as SettingsIcon, Circle, Check, ChevronRight,
     Search, Power, Download, RefreshCw, Network, Eye, EyeOff, X, AlertTriangle,
-    FileText, Activity, Play, Pause, AlertCircle
+    FileText, Activity, Play, Pause, AlertCircle, ExternalLink
 } from 'lucide-react';
 import { AppProps, AppID } from '../../types';
 
@@ -1099,82 +1099,100 @@ const Settings: React.FC<AppProps> = () => {
                         </div>
                     )}
 
-                    {/* ABOUT TAB */}
                     {activeTab === 'about' && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-300">
-                            <div className="flex items-center gap-6 pb-6 border-b border-gray-800">
-                                <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-400 rounded-2xl flex items-center justify-center text-5xl font-bold text-white shadow-2xl">
-                                    Y
-                                </div>
-                                <div>
-                                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                        Yashika OS
-                                    </h1>
-                                    <p className="text-gray-400 mt-1">Version 1.0.0 • Based on Kali Linux 2026</p>
-                                    <div className="mt-3 flex items-center gap-2">
-                                        <span className="text-sm text-gray-500">Developed by</span>
-                                        <span
-                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://ayushxupadhyay.netlify.app' })}
-                                            className="text-sm text-blue-400 hover:text-blue-300 font-semibold hover:underline cursor-pointer"
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* Developer Profile */}
+                            <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-2xl p-6 border border-white/10 text-center relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-500" />
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-r from-blue-500 to-purple-500 mb-4 shadow-xl shadow-blue-500/20">
+                                        <img
+                                            src="https://avatars.githubusercontent.com/u/12345678?v=4"
+                                            alt="Ayush Upadhyay"
+                                            className="w-full h-full rounded-full object-cover border-2 border-[#0f172a]"
+                                        />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-white mb-1">Ayush Upadhyay</h2>
+                                    <p className="text-blue-400 font-medium mb-4">Full Stack Developer & UI/UX Designer</p>
+
+                                    <div className="flex gap-3 mb-6">
+                                        <button
+                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://github.com/Ayushdevx' })}
+                                            className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white"
+                                            title="GitHub"
                                         >
-                                            Ayush Upadhyay
-                                        </span>
+                                            <Globe size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://linkedin.com/in/ayush-upadhyay' })}
+                                            className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-blue-400"
+                                            title="LinkedIn"
+                                        >
+                                            <Network size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => launchApp(AppID.BROWSER, { url: 'https://ayushxupadhyay.netlify.app' })}
+                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-full text-sm font-medium text-white transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2"
+                                        >
+                                            <span>Portfolio</span>
+                                            <ExternalLink size={14} />
+                                        </button>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-5 border border-blue-500/20">
-                                    <div className="flex items-center gap-2 text-blue-400 mb-4">
-                                        <Cpu size={20} />
-                                        <h3 className="text-sm font-bold uppercase tracking-wider">Hardware</h3>
-                                    </div>
-                                    <div className="space-y-3 text-sm">
-                                        <div className="flex justify-between border-b border-gray-700/50 pb-2">
-                                            <span className="text-gray-500">Processor</span>
-                                            <span className="text-gray-300 font-medium">Virtual CPU @ 3.40GHz</span>
+                                    <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
+                                        <div className="bg-black/20 rounded-lg p-3 text-center backdrop-blur-sm">
+                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">OS Version</div>
+                                            <div className="font-mono font-bold text-blue-300">v2.1.0</div>
                                         </div>
-                                        <div className="flex justify-between border-b border-gray-700/50 pb-2">
-                                            <span className="text-gray-500">Memory</span>
-                                            <span className="text-gray-300 font-medium">16.0 GiB</span>
-                                        </div>
-                                        <div className="flex justify-between border-b border-gray-700/50 pb-2">
-                                            <span className="text-gray-500">Graphics</span>
-                                            <span className="text-gray-300 font-medium">WebGL Accelerated</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Storage</span>
-                                            <span className="text-gray-300 font-medium">512 GB SSD</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl p-5 border border-purple-500/20">
-                                    <div className="flex items-center gap-2 text-purple-400 mb-4">
-                                        <Globe size={20} />
-                                        <h3 className="text-sm font-bold uppercase tracking-wider">Software</h3>
-                                    </div>
-                                    <div className="space-y-3 text-sm">
-                                        <div className="flex justify-between border-b border-gray-700/50 pb-2">
-                                            <span className="text-gray-500">OS Name</span>
-                                            <span className="text-gray-300 font-medium">Yashika OS</span>
-                                        </div>
-                                        <div className="flex justify-between border-b border-gray-700/50 pb-2">
-                                            <span className="text-gray-500">Kernel</span>
-                                            <span className="text-gray-300 font-medium">6.9.0-kali-amd64</span>
-                                        </div>
-                                        <div className="flex justify-between border-b border-gray-700/50 pb-2">
-                                            <span className="text-gray-500">Shell</span>
-                                            <span className="text-gray-300 font-medium">zsh 5.9</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Desktop</span>
-                                            <span className="text-gray-300 font-medium">Yashika DE</span>
+                                        <div className="bg-black/20 rounded-lg p-3 text-center backdrop-blur-sm">
+                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Build</div>
+                                            <div className="font-mono font-bold text-purple-300">2026.1</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
+                            {/* System Hardware */}
+                            <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700/50">
+                                <div className="flex items-center gap-2 text-blue-400 mb-4">
+                                    <Cpu size={20} />
+                                    <h3 className="text-sm font-bold uppercase tracking-wider">System Hardware</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Cpu size={18} /></div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-200">Processor</div>
+                                                <div className="text-xs text-gray-500">Virtual Core i9-14900K</div>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-mono text-gray-400">3.2 GHz</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400"><Activity size={18} /></div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-200">Memory</div>
+                                                <div className="text-xs text-gray-500">32GB DDR5 RAM</div>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-mono text-gray-400">6000 MHz</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-green-500/10 rounded-lg text-green-400"><Monitor size={18} /></div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-200">Graphics</div>
+                                                <div className="text-xs text-gray-500">NVIDIA RTX 4090</div>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-mono text-gray-400">24GB</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Storage */}
                             <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700/50">
                                 <div className="flex items-center gap-2 text-cyan-400 mb-4">
                                     <HardDrive size={20} />
@@ -1225,13 +1243,10 @@ const Settings: React.FC<AppProps> = () => {
                                 <p>© 2026 Yashika OS • Licensed under MIT License</p>
                                 <p className="mt-1">Built with React, TypeScript, and Vite</p>
                             </div>
-                        </div>
+                        </div >
                     )}
-
-                </div>
-            </div>
-
-
+                </div >
+            </div >
 
             <style>{`
         .slider-thumb::-webkit-slider-thumb {
@@ -1276,7 +1291,7 @@ const Settings: React.FC<AppProps> = () => {
                 onPause={pauseScan}
                 onResolve={resolveThreats}
             />
-        </div>
+        </div >
     );
 };
 

@@ -58,20 +58,6 @@ const Terminal: React.FC<AppProps> = ({ params }) => {
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 10);
-        return () => clearTimeout(timeout);
-    }, [history, isProcessing]);
-
-    // Handle Auto-Run Commands
-    useEffect(() => {
-        if (params?.autoRun) {
-            handleCommand(params.autoRun);
-        }
-    }, []); // Run once on mount
-
     // Capture generic copy events to populate history
     useEffect(() => {
         const handleCopyEvent = () => {
@@ -86,6 +72,16 @@ const Terminal: React.FC<AppProps> = ({ params }) => {
         };
         document.addEventListener('copy', handleCopyEvent);
         return () => document.removeEventListener('copy', handleCopyEvent);
+    }, []);
+
+    // Handle Auto-Run Commands
+    useEffect(() => {
+        if (params?.autoRun) {
+            // Small delay to ensure component is fully mounted and ready
+            setTimeout(() => {
+                handleCommand(params.autoRun);
+            }, 100);
+        }
     }, []);
 
     // Close context menu on click

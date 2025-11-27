@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, Wifi, Volume2, Battery, Calendar as CalendarIcon, Search, Power, Settings as SettingsIcon, ChevronRight, ChevronLeft, Check, Lock } from 'lucide-react';
 import AppDrawer from './AppDrawer';
+import StartMenu from './StartMenu';
 import { WindowState, AppID } from '../../types';
 import { APP_REGISTRY, KALI_CATEGORIES } from '../../constants';
 import { playSystemSound } from '../../utils/soundEffects';
@@ -236,7 +237,7 @@ const Taskbar: React.FC<TaskbarProps> = ({
     const [showVolume, setShowVolume] = useState(false);
     const [showNetworkInfo, setShowNetworkInfo] = useState(false);
     const [hoveredApp, setHoveredApp] = useState<AppID | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => setTime(new Date()), 1000);
@@ -258,27 +259,21 @@ const Taskbar: React.FC<TaskbarProps> = ({
         setShowCalendar(false);
     }
 
-    const handleKaliToolLaunch = (toolCommand: string) => {
-        // Extract tool name from command (e.g., "nmap -v" -> "nmap")
-        const toolName = toolCommand.split(' ')[0].toLowerCase();
-
-        onAppLaunch(AppID.KALI_TOOLS, {
-            title: `Kali Linux - ${toolName}`,
-            initialTool: toolName
-        });
-        onToggleStart();
-    };
-
-    const filteredApps = Object.values(APP_REGISTRY).filter(app =>
-        app.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <>
-            {/* App Drawer */}
-            <AppDrawer
+            {/* Classic Start Menu (Sidebar) */}
+            <StartMenu
                 isOpen={isStartOpen}
                 onClose={onToggleStart}
+                onAppLaunch={onAppLaunch}
+                onToggleDrawer={() => setIsDrawerOpen(true)}
+                onPowerClick={onPowerClick}
+            />
+
+            {/* Modern App Drawer */}
+            <AppDrawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
                 onAppLaunch={onAppLaunch}
             />
 
